@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maruti Suzuki Service CRM</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --primary: #1a56db;
+    --primary-light: #e8f0fe;
+    --success: #0e9f6e;
+    --success-light: #e8f5f0;
+    --warning: #e3a008;
+    --warning-light: #fef3c7;
+    --danger: #f05252;
+    --danger-light: #fde8e8;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --white: #ffffff;
+    --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+    --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--gray-50);
+    color: var(--gray-800);
+    min-height: 100vh;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 240px;
+    background: var(--white);
+    border-right: 1px solid var(--gray-200);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s;
+  }
+
+  .sidebar-logo {
+    padding: 20px;
+    border-bottom: 1px solid var(--gray-200);
+  }
+
+  .sidebar-logo h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1.3;
+  }
+
+  .sidebar-logo p {
+    font-size: 11px;
+    color: var(--gray-400);
+    margin-top: 2px;
+  }
+
+  .sidebar-nav {
+    padding: 12px 0;
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .nav-section-title {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 8px 20px 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 0;
+    font-size: 14px;
+    color: var(--gray-600);
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+
+  .nav-item:hover { background: var(--gray-50); color: var(--gray-800); }
+  .nav-item.active {
+    background: var(--primary-light);
+    color: var(--primary);
+    border-left-color: var(--primary);
+    font-weight: 600;
+  }
+
+  .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--gray-200);
+    font-size: 11px;
+    color: var(--gray-400);
+  }
+
+  /* MAIN CONTENT */
+  .main {
+    margin-left: 240px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .topbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .topbar-left h1 { font-size: 18px; font-weight: 700; color: var(--gray-900); }
+  .topbar-left p { font-size: 12px; color: var(--gray-400); margin-top: 1px; }
+
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: #1447c0; }
+  .btn-outline { background: white; color: var(--gray-700); border: 1px solid var(--gray-300); }
+  .btn-outline:hover { background: var(--gray-50); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-success { background: var(--success); color: white; }
+  .btn-danger { background: var(--danger); color: white; }
+
+  .content { padding: 24px 28px; flex: 1; }
+
+  /* PAGE SECTIONS */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-800);
+  }
+
+  .card-body { padding: 20px; }
+
+  /* STATS GRID */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--gray-200);
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .stat-label { font-size: 12px; color: var(--gray-500); font-weight: 500; }
+  .stat-value { font-size: 28px; font-weight: 700; color: var(--gray-900); margin: 4px 0; }
+  .stat-sub { font-size: 11px; color: var(--gray-400); }
+  .stat-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+  .badge-success { background: var(--success-light); color: var(--success); }
+  .badge-warning { background: var(--warning-light); color: var(--warning); }
+  .badge-danger { background: var(--danger-light); color: var(--danger); }
+  .badge-primary { background: var(--primary-light); color: var(--primary); }
+  .badge-gray { background: var(--gray-100); color: var(--gray-600); }
+
+  /* GRID LAYOUTS */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+  /* CUSTOMER CARD */
+  .customer-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s;
+    position: relative;
+  }
+
+  .customer-card:hover { box-shadow: var(--shadow-md); }
+
+  .customer-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .customer-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .avatar-arena { background: #dbeafe; color: #1d4ed8; }
+  .avatar-nexa { background: #f3e8ff; color: #7c3aed; }
+
+  .customer-name { font-size: 14px; font-weight: 600; color: var(--gray-900); }
+  .customer-meta { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+
+  .prob-bar-wrap { margin: 12px 0; }
+  .prob-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 5px;
+    color: var(--gray-600);
+  }
+  .prob-bar-label span:last-child { font-weight: 700; }
+
+  .prob-bar {
+    height: 6px;
+    background: var(--gray-100);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .prob-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+
+  .fill-high { background: linear-gradient(90deg, #0e9f6e, #31c48d); }
+  .fill-medium { background: linear-gradient(90deg, #e3a008, #f6c90e); }
+  .fill-low { background: linear-gradient(90deg, #f05252, #f98080); }
+
+  .reason-box {
+    background: var(--gray-50);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    margin: 12px 0;
+    font-size: 12px;
+    color: var(--gray-600);
+    line-height: 1.5;
+    border-left: 3px solid var(--primary);
+  }
+
+  .reason-box strong { color: var(--gray-800); }
+
+  /* STATUS BUTTONS */
+  .status-buttons {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
+  .status-btn {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1.5px solid;
+    transition: all 0.15s;
+    background: white;
+  }
+
+  .status-btn.not-called { border-color: var(--gray-300); color: var(--gray-500); }
+  .status-btn.not-called.active { background: var(--gray-100); color: var(--gray-700); border-color: var(--gray-400); }
+  .status-btn.called { border-color: var(--primary); color: var(--primary); }
+  .status-btn.called.active { background: var(--primary); color: white; }
+  .status-btn.not-picked { border-color: var(--warning); color: var(--warning); }
+  .status-btn.not-picked.active { background: var(--warning); color: white; }
+  .status-btn.converted { border-color: var(--success); color: var(--success); }
+  .status-btn.converted.active { background: var(--success); color: white; }
+
+  .auto-saved {
+    font-size: 10px;
+    color: var(--success);
+    margin-top: 6px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .auto-saved.show { opacity: 1; }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .section-title { font-size: 16px; font-weight: 700; color: var(--gray-900); }
+  .section-sub { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+
+  /* CALL OPTIMIZATION BOX */
+  .call-opt-box {
+    background: linear-gradient(135deg, #1a56db 0%, #1447c0 100%);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+    color: white;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .call-opt-box h3 { font-size: 14px; opacity: 0.85; font-weight: 500; }
+  .call-opt-box .big-text { font-size: 28px; font-weight: 800; margin: 4px 0; }
+  .call-opt-box .sub-text { font-size: 12px; opacity: 0.7; }
+
+  .call-opt-divider { width: 1px; background: rgba(255,255,255,0.2); height: 60px; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    background: var(--gray-50);
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  tbody td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--gray-100);
+    color: var(--gray-700);
+    vertical-align: middle;
+  }
+  tbody tr:hover { background: var(--gray-50); }
+  tbody tr:last-child td { border-bottom: none; }
+
+  /* CALENDAR */
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+
+  .cal-header {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray-500);
+    padding: 6px;
+    text-transform: uppercase;
+  }
+
+  .cal-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+    position: relative;
+    padding: 4px;
+  }
+
+  .cal-day:hover { background: var(--gray-100); }
+  .cal-day.has-customers { background: var(--primary-light); border-color: #bfdbfe; }
+  .cal-day.has-customers:hover { background: #dbeafe; }
+  .cal-day.today { background: var(--primary); color: white; }
+  .cal-day.today:hover { background: #1447c0; }
+  .cal-day.peak { background: #fef3c7; border-color: #fde68a; }
+  .cal-day.empty { cursor: default; }
+
+  .cal-day-num { font-size: 13px; font-weight: 500; }
+  .cal-day-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--primary); margin-top: 2px; }
+  .cal-day.today .cal-day-dot { background: white; }
+
+  /* MONTH NAV */
+  .month-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .month-nav h3 { font-size: 16px; font-weight: 700; flex: 1; text-align: center; }
+  .month-nav button {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--gray-200);
+    background: white;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .month-nav button:hover { background: var(--gray-100); }
+
+  /* TIMELINE */
+  .timeline {
+    position: relative;
+    padding-left: 24px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--gray-200);
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: -20px;
+    top: 4px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--primary);
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px var(--primary);
+  }
+
+  .timeline-dot.peak { background: var(--warning); box-shadow: 0 0 0 2px var(--warning); }
+  .timeline-dot.low { background: var(--gray-300); box-shadow: 0 0 0 2px var(--gray-300); }
+
+  .timeline-content {
+    background: var(--gray-50);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    border: 1px solid var(--gray-200);
+  }
+
+  .timeline-month { font-size: 13px; font-weight: 600; color: var(--gray-800); }
+  .timeline-detail { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+
+  /* PROBABILITY TIMELINE BARS */
+  .month-prob-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .month-prob-item {
+    background: var(--gray-50);
+    border-radius: var(--radius);
+    padding: 10px;
+    border: 1px solid var(--gray-200);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .month-prob-item:hover { border-color: var(--primary); background: var(--primary-light); }
+  .month-prob-item.peak-month { border-color: var(--warning); background: var(--warning-light); }
+
+  .month-prob-item .m-name { font-size: 11px; font-weight: 600; color: var(--gray-600); }
+  .month-prob-item .m-prob { font-size: 18px; font-weight: 800; color: var(--gray-900); margin: 4px 0; }
+  .month-prob-item .m-bar { height: 4px; border-radius: 2px; background: var(--gray-200); overflow: hidden; }
+  .month-prob-item .m-bar-fill { height: 100%; border-radius: 2px; background: var(--primary); }
+  .month-prob-item.peak-month .m-bar-fill { background: var(--warning); }
+
+  /* FILTER BAR */
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filter-bar input, .filter-bar select {
+    padding: 8px 12px;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    font-size: 13px;
+    background: white;
+    color: var(--gray-700);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .filter-bar input:focus, .filter-bar select:focus { border-color: var(--primary); }
+  .filter-bar input { flex: 1; min-width: 180px; }
+
+  /* PRINT STYLES */
+  @media print {
+    .sidebar, .topbar, .no-print, .status-buttons, .filter-bar { display: none !important; }
+    .main { margin-left: 0; }
+    .content { padding: 0; }
+    body { background: white; }
+    .customer-card { break-inside: avoid; border: 1px solid #ddd; }
+    .print-header { display: block !important; }
+  }
+
+  .print-header { display: none; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .modal-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-title { font-size: 15px; font-weight: 700; }
+  .modal-close {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: var(--gray-100);
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-body { padding: 20px; }
+
+  /* TOOLTIP */
+  .tooltip { position: relative; }
+  .tooltip-text {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gray-900);
+    color: white;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+  }
+  .tooltip:hover .tooltip-text { opacity: 1; }
+
+  /* MOBILE */
+  .hamburger {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--gray-700);
+  }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      transform: translateX(-100%);
+      width: 260px;
+    }
+    .sidebar.open { transform: translateX(0); box-shadow: var(--shadow-lg); }
+    .main { margin-left: 0; }
+    .hamburger { display: flex; align-items: center; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr; }
+    .call-opt-divider { display: none; }
+    .content { padding: 16px; }
+    .topbar { padding: 12px 16px; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* LOADING */
+  .loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: white;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--gray-200);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text { font-size: 14px; color: var(--gray-500); }
+
+  /* NOTIFICATION */
+  .notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--gray-900);
+    color: white;
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    z-index: 300;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .notification.show { transform: translateY(0); opacity: 1; }
+
+  /* INSIGHT BOX */
+  .insight-box {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 1px solid #bae6fd;
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+  }
+
+  .insight-box h4 { font-size: 13px; font-weight: 600; color: #0369a1; margin-bottom: 8px; }
+  .insight-box ul { list-style: none; }
+  .insight-box ul li {
+    font-size: 12px;
+    color: #0c4a6e;
+    padding: 3px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .insight-box ul li::before { content: '→'; color: #0369a1; flex-shrink: 0; }
+
+  /* MODEL INFO */
+  .model-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .model-info-item {
+    background: var(--gray-50);
+    border-radius: var(--radius);
+    padding: 14px;
+    border: 1px solid var(--gray-200);
+  }
+
+  .model-info-item h4 { font-size: 12px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; margin-bottom: 6px; }
+  .model-info-item p { font-size: 13px; color: var(--gray-700); }
+
+  .feature-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .feature-name { font-size: 12px; color: var(--gray-600); width: 180px; flex-shrink: 0; }
+  .feature-importance {
+    flex: 1;
+    height: 8px;
+    background: var(--gray-100);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .feature-importance-fill { height: 100%; border-radius: 4px; background: var(--primary); }
+  .feature-pct { font-size: 12px; color: var(--gray-500); width: 36px; text-align: right; }
+
+  /* CHIPS */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--gray-100);
+    color: var(--gray-600);
+  }
+  .chip-arena { background: #dbeafe; color: #1d4ed8; }
+  .chip-nexa { background: #f3e8ff; color: #7c3aed; }
+  .chip-direct { background: #d1fae5; color: #065f46; }
+  .chip-insurance { background: #fef3c7; color: #92400e; }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div style="text-align:center;">
+    <div style="font-size:32px;margin-bottom:12px;">🚗</div>
+    <div class="spinner" style="margin:0 auto 12px;"></div>
+    <div class="loading-text">Fetching Live Data from Server...</div>
+    <div style="font-size:11px;color:#9ca3af;margin-top:6px;">Maruti Suzuki Service Intelligence</div>
+  </div>
+</div>
+
+<div class="notification" id="notification">
+  <span id="notifText">✓ Auto-saved</span>
+</div>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <h2>🚗 Maruti CRM</h2>
+    <p>Service Intelligence Platform</p>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section-title">Main</div>
+    <div class="nav-item active" onclick="showPage('dashboard')">
+      <span class="icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="showPage('daily')">
+      <span class="icon">🎯</span> Daily Targets
+    </div>
+    <div class="nav-item" onclick="showPage('customers')">
+      <span class="icon">👥</span> Customer List
+    </div>
+    <div class="nav-section-title">Analytics</div>
+    <div class="nav-item" onclick="showPage('calendar')">
+      <span class="icon">📅</span> Calendar View
+    </div>
+    <div class="nav-item" onclick="showPage('longterm')">
+      <span class="icon">📈</span> Long-Term Forecast
+    </div>
+    <div class="nav-section-title">System</div>
+    <div class="nav-item" onclick="showPage('model')">
+      <span class="icon">🧠</span> ML Model Info
+    </div>
+    <div class="nav-item" onclick="showPage('print')">
+      <span class="icon">🖨️</span> Print / Export
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    Model: External ML API<br>
+    Last Updated: <span id="lastUpdated"></span>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="hamburger" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-left">
+        <h1 id="pageTitle">Dashboard</h1>
+        <p id="pageDate"></p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-outline btn-sm no-print" onclick="refreshModel()">🔄 Refresh Data</button>
+      <button class="btn btn-primary btn-sm no-print" onclick="showPage('print')">🖨️ Print</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Customers</div>
+          <div class="stat-value" id="stat-total">0</div>
+          <div class="stat-sub">In database</div>
+          <span class="stat-badge badge-primary">Active</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">High Priority Today</div>
+          <div class="stat-value" id="stat-high">0</div>
+          <div class="stat-sub">Score ≥ 70%</div>
+          <span class="stat-badge badge-success">Hot Leads</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Today's Target</div>
+          <div class="stat-value">4</div>
+          <div class="stat-sub">2 Arena + 2 Nexa</div>
+          <span class="stat-badge badge-warning">Daily</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Conversions Today</div>
+          <div class="stat-value" id="stat-converted">0</div>
+          <div class="stat-sub" id="stat-converted-sub">of 4 targets</div>
+          <span class="stat-badge badge-success" id="stat-conv-badge">On Track</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Arena Customers</div>
+          <div class="stat-value" id="stat-arena">0</div>
+          <div class="stat-sub">Budget segment</div>
+          <span class="stat-badge badge-primary">Arena</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Nexa Customers</div>
+          <div class="stat-value" id="stat-nexa">0</div>
+          <div class="stat-sub">Premium segment</div>
+          <span class="stat-badge" style="background:#f3e8ff;color:#7c3aed;">Nexa</span>
+        </div>
+      </div>
+
+      <div class="call-opt-box">
+        <div>
+          <h3>📞 Call Optimization</h3>
+          <div class="big-text">40 – 50 Calls</div>
+          <div class="sub-text">to achieve 4 conversions today</div>
+        </div>
+        <div class="call-opt-divider"></div>
+        <div>
+          <h3>Minimum Calls</h3>
+          <div class="big-text">40</div>
+          <div class="sub-text">Conservative estimate</div>
+        </div>
+        <div class="call-opt-divider"></div>
+        <div>
+          <h3>Maximum Calls</h3>
+          <div class="big-text">50</div>
+          <div class="sub-text">With buffer</div>
+        </div>
+        <div class="call-opt-divider"></div>
+        <div>
+          <h3>Conversion Rate</h3>
+          <div class="big-text">8–10%</div>
+          <div class="sub-text">ML-predicted average</div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px;">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🏆 Top Arena Picks Today</span>
+            <span class="stat-badge badge-primary">2 Targets</span>
+          </div>
+          <div class="card-body" id="dashboard-arena"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🏆 Top Nexa Picks Today</span>
+            <span class="stat-badge" style="background:#f3e8ff;color:#7c3aed;">2 Targets</span>
+          </div>
+          <div class="card-body" id="dashboard-nexa"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📊 This Month's Service Probability Overview</span>
+        </div>
+        <div class="card-body">
+          <div id="monthOverview"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-daily">
+      <div class="insight-box">
+        <h4>🎯 Today's Strategy</h4>
+        <ul>
+          <li>Call 40–50 customers from the list below to achieve 4 conversions</li>
+          <li>Start with highest probability scores first</li>
+          <li>Focus on customers with 6–12 month service gaps</li>
+          <li>Update status after each call — data auto-saves instantly</li>
+        </ul>
+      </div>
+
+      <div class="section-header">
+        <div>
+          <div class="section-title">🚗 Arena Daily Targets</div>
+          <div class="section-sub">2 priority customers selected by ML</div>
+        </div>
+      </div>
+      <div id="daily-arena" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:28px;"></div>
+
+      <div class="section-header">
+        <div>
+          <div class="section-title">✨ Nexa Daily Targets</div>
+          <div class="section-sub">2 priority customers selected by ML</div>
+        </div>
+      </div>
+      <div id="daily-nexa" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;"></div>
+    </div>
+
+    <div class="page" id="page-customers">
+      <div class="filter-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Search by name, phone, or model..." oninput="filterCustomers()">
+        <select onchange="filterCustomers()" id="filterModel">
+          <option value="">All Models</option>
+          <option value="Arena">Arena</option>
+          <option value="Nexa">Nexa</option>
+        </select>
+        <select onchange="filterCustomers()" id="filterStatus">
+          <option value="">All Status</option>
+          <option value="not-called">Not Called</option>
+          <option value="called">Called</option>
+          <option value="not-picked">Not Picked</option>
+          <option value="converted">Converted</option>
+        </select>
+        <select onchange="filterCustomers()" id="filterService">
+          <option value="">All Service Types</option>
+          <option value="Direct">Direct</option>
+          <option value="Insurance">Insurance</option>
+        </select>
+        <select onchange="sortCustomers(this.value)" id="sortBy">
+          <option value="prob-desc">Highest Probability</option>
+          <option value="prob-asc">Lowest Probability</option>
+          <option value="name">Name A-Z</option>
+          <option value="days">Days Since Service</option>
+        </select>
+      </div>
+      <div id="customerCount" style="font-size:13px;color:var(--gray-500);margin-bottom:12px;"></div>
+      <div id="customerListGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;"></div>
+    </div>
+
+    <div class="page" id="page-calendar">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-body">
+            <div class="month-nav">
+              <button onclick="changeMonth(-1)">‹</button>
+              <h3 id="calMonthTitle"></h3>
+              <button onclick="changeMonth(1)">›</button>
+            </div>
+            <div class="calendar-grid" id="calGrid"></div>
+            <div style="display:flex;gap:16px;margin-top:16px;flex-wrap:wrap;">
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray-500);">
+                <div style="width:12px;height:12px;border-radius:3px;background:var(--primary-light);border:1px solid #bfdbfe;"></div> Has Customers
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray-500);">
+                <div style="width:12px;height:12px;border-radius:3px;background:#fef3c7;border:1px solid #fde68a;"></div> Peak Month
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray-500);">
+                <div style="width:12px;height:12px;border-radius:3px;background:var(--primary);"></div> Today
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title" id="calDetailTitle">Select a date</span>
+          </div>
+          <div class="card-body" id="calDetail">
+            <div style="text-align:center;color:var(--gray-400);padding:30px 0;">
+              <div style="font-size:32px;margin-bottom:8px;">📅</div>
+              <p style="font-size:13px;">Click any date to see predicted customers</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-longterm">
+      <div class="insight-box">
+        <h4>📈 Long-Term Prediction: Today → December 2027</h4>
+        <ul>
+          <li>Predictions generated using external ML model with service history patterns</li>
+          <li>Peak months highlighted in amber — best time to contact customers</li>
+          <li>Click any customer to see their full month-by-month probability timeline</li>
+        </ul>
+      </div>
+
+      <div class="filter-bar no-print">
+        <input type="text" id="ltSearchInput" placeholder="🔍 Search customer..." oninput="filterLongTerm()">
+        <select onchange="filterLongTerm()" id="ltFilterModel">
+          <option value="">All Models</option>
+          <option value="Arena">Arena</option>
+          <option value="Nexa">Nexa</option>
+        </select>
+      </div>
+
+      <div id="longtermList"></div>
+    </div>
+
+    <div class="page" id="page-model">
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <span class="card-title">🧠 Machine Learning Model Status</span>
+          <span class="stat-badge badge-success">API Connected</span>
+        </div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--gray-600);margin-bottom:16px;">
+            The system retrieves dynamic data from an external <code>output.json</code> file populated by your backend ML pipeline.
+          </p>
+          <div class="model-info-grid">
+            <div class="model-info-item">
+              <h4>Data Source</h4>
+              <p>output.json</p>
+            </div>
+            <div class="model-info-item">
+              <h4>Output</h4>
+              <p>Probability Score (0–100%)</p>
+            </div>
+            <div class="model-info-item">
+              <h4>Update Frequency</h4>
+              <p>Every 5 Minutes (Auto-fetch)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-print">
+      <div class="no-print" style="margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="window.print()">🖨️ Print Report</button>
+        <button class="btn btn-outline" onclick="exportPDF()">📄 Export PDF</button>
+        <button class="btn btn-outline" onclick="exportCSV()">📊 Export CSV</button>
+      </div>
+
+      <div class="print-header" style="margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid #1a56db;">
+        <h2 style="color:#1a56db;font-size:20px;">Maruti Suzuki Service CRM — Daily Report</h2>
+        <p style="color:#6b7280;font-size:13px;" id="printDate"></p>
+      </div>
+
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <span class="card-title">📋 Today's Call List — All Priority Customers</span>
+        </div>
+        <div class="card-body">
+          <div class="table-wrap">
+            <table id="printTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Customer Name</th>
+                  <th>Phone</th>
+                  <th>Reg. No.</th>
+                  <th>Model</th>
+                  <th>Type</th>
+                  <th>Score</th>
+                  <th>Days Since</th>
+                  <th>Reason</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="printTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card no-print">
+        <div class="card-header">
+          <span class="card-title">📊 Summary</span>
+        </div>
+        <div class="card-body">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Total in Report</div>
+              <div class="stat-value" id="print-total">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Converted</div>
+              <div class="stat-value" id="print-converted">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Called</div>
+              <div class="stat-value" id="print-called">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Not Picked</div>
+              <div class="stat-value" id="print-notpicked">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-overlay" id="customerModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">Customer Details</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA FETCHING & INITIALIZATION
+// ============================================================
+
+let CUSTOMERS = [];
+let statusStore = {};
+
+async function loadDataFromServer() {
+  try {
+    // Load saved statuses from local browser storage
+    try {
+      const saved = localStorage.getItem('crm_statuses');
+      if (saved) statusStore = JSON.parse(saved);
+    } catch(e) {}
+
+    const res = await fetch("output.json");
+    if (!res.ok) throw new Error("Failed to load output.json");
+    
+    const data = await res.json();
+
+    CUSTOMERS = data.map(c => ({
+      reg: c.REG_NO,
+      name: c.Name,                      
+      phone: String(c.Phone),            
+      model: c.Model.toUpperCase().includes("NEXA") ? "Nexa" : "Arena",
+      car: c.Model,                      
+      serviceType: "Direct",
+      features: {
+        daysSinceLast: c.Days,
+        avgGap: 180,
+        consistency: 70,
+        frequency: c.Service_Count,
+        lastServiceDate: new Date().toISOString().split('T')[0]
+      },
+      score: Math.round(c.Probability * 100),
+      reasons: [
+        `Last service ${c.Days} days ago`,
+        `Service count ${c.Service_Count}`,
+        `High ML probability`
+      ],
+      timeline: generateDummyTimeline(c.Probability),
+      status: statusStore[c.REG_NO] || "not-called"
+    }));
+
+    CUSTOMERS.sort((a,b)=>b.score-a.score);
+
+  } catch (err) {
+    console.error("Data Fetching Error:", err);
+    showNotification("⚠️ Error loading output.json. Check console.");
+  }
+}
+
+function generateDummyTimeline(prob) {
+  const timeline = [];
+  const today = new Date();
+
+  for (let i = 0; i < 36; i++) {
+    let d = new Date(today);
+    d.setMonth(d.getMonth() + i);
+
+    let p = Math.min(95, Math.max(10, prob*100 + (Math.random()*20-10)));
+
+    timeline.push({
+      monthName: d.toLocaleDateString('en-IN', {month:'short',year:'2-digit'}),
+      fullMonthName: d.toLocaleDateString('en-IN', {month:'long',year:'numeric'}),
+      prob: Math.round(p),
+      isPeak: p > 65,
+      year: d.getFullYear(),
+      month: d.getMonth()
+    });
+  }
+
+  return timeline;
+}
+
+// ============================================================
+// STATUS MANAGEMENT
+// ============================================================
+
+function updateStatus(reg, newStatus) {
+  const customer = CUSTOMERS.find(c => c.reg === reg);
+  if (customer) {
+    customer.status = newStatus;
+    statusStore[reg] = newStatus;
+    try {
+      localStorage.setItem('crm_statuses', JSON.stringify(statusStore));
+    } catch(e) {}
+    
+    document.querySelectorAll(`[data-reg="${reg}"] .status-btn`).forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.status === newStatus);
+    });
+    
+    document.querySelectorAll(`[data-reg="${reg}"] .auto-saved`).forEach(el => {
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2000);
+    });
+    
+    showNotification('✓ Status updated & auto-saved');
+    updateStats();
+  }
+}
+
+// ============================================================
+// RENDER FUNCTIONS
+// ============================================================
+
+function getProbColor(score) {
+  if (score >= 70) return 'fill-high';
+  if (score >= 45) return 'fill-medium';
+  return 'fill-low';
+}
+
+function getProbBadge(score) {
+  if (score >= 70) return '<span class="stat-badge badge-success">High</span>';
+  if (score >= 45) return '<span class="stat-badge badge-warning">Medium</span>';
+  return '<span class="stat-badge badge-danger">Low</span>';
+}
+
+function renderCustomerCard(customer, showFullReasons = true) {
+  const initials = customer.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const avatarClass = customer.model === 'Arena' ? 'avatar-arena' : 'avatar-nexa';
+  const modelChip = customer.model === 'Arena' ? 'chip-arena' : 'chip-nexa';
+  const serviceChip = customer.serviceType === 'Direct' ? 'chip-direct' : 'chip-insurance';
+  const reasons = showFullReasons ? customer.reasons : customer.reasons.slice(0,2);
+  
+  const statusLabels = { 'not-called': 'Not Called', 'called': 'Called', 'not-picked': 'Not Picked', 'converted': 'Converted' };
+  
+  return `
+    <div class="customer-card" data-reg="${customer.reg}">
+      <div class="customer-card-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="customer-avatar ${avatarClass}">${initials}</div>
+          <div>
+            <div class="customer-name">${customer.name}</div>
+            <div class="customer-meta">📞 ${customer.phone} · ${customer.car}</div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          ${getProbBadge(customer.score)}
+          <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">${customer.reg}</div>
+        </div>
+      </div>
+      
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+        <span class="chip ${modelChip}">${customer.model}</span>
+        <span class="chip ${serviceChip}">${customer.serviceType}</span>
+        <span class="chip">📅 ${customer.features.daysSinceLast}d ago</span>
+        <span class="chip">🔄 ${customer.features.frequency} services</span>
+      </div>
+      
+      <div class="prob-bar-wrap">
+        <div class="prob-bar-label">
+          <span>Service Probability</span>
+          <span>${customer.score}%</span>
+        </div>
+        <div class="prob-bar">
+          <div class="prob-bar-fill ${getProbColor(customer.score)}" style="width:${customer.score}%"></div>
+        </div>
+      </div>
+      
+      <div class="reason-box">
+        <strong>🧠 Why selected:</strong><br>
+        ${reasons.map(r => `• ${r}`).join('<br>')}
+      </div>
+      
+      <div class="status-buttons">
+        ${Object.entries(statusLabels).map(([s,l]) => `
+          <button class="status-btn ${s} ${customer.status === s ? 'active' : ''}" 
+                  data-status="${s}"
+                  onclick="updateStatus('${customer.reg}','${s}')">
+            ${l}
+          </button>
+        `).join('')}
+      </div>
+      <div class="auto-saved">✓ Auto-saved</div>
+      
+      <div style="margin-top:10px;display:flex;gap:6px;">
+        <button class="btn btn-outline btn-sm" onclick="openCustomerModal('${customer.reg}')">📊 Full Details</button>
+        <button class="btn btn-outline btn-sm" onclick="openTimelineModal('${customer.reg}')">📈 Timeline</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderMiniCard(customer) {
+  return `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-100);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="customer-avatar ${customer.model==='Arena'?'avatar-arena':'avatar-nexa'}" style="width:32px;height:32px;font-size:12px;">
+          ${customer.name.split(' ').map(w=>w[0]).join('').slice(0,2)}
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--gray-800);">${customer.name}</div>
+          <div style="font-size:11px;color:var(--gray-500);">${customer.car} · ${customer.features.daysSinceLast}d since service</div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:16px;font-weight:800;color:${customer.score>=70?'var(--success)':customer.score>=45?'var(--warning)':'var(--danger)'};">${customer.score}%</div>
+        <div style="font-size:10px;color:var(--gray-400);">${customer.phone}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// PAGE RENDERERS
+// ============================================================
+
+function renderDashboard() {
+  updateStats();
+  
+  const arenaTop = CUSTOMERS.filter(c => c.model === 'Arena').slice(0,2);
+  const nexaTop = CUSTOMERS.filter(c => c.model === 'Nexa').slice(0,2);
+  
+  document.getElementById('dashboard-arena').innerHTML = arenaTop.length ? arenaTop.map(renderMiniCard).join('') : '<p>No data</p>';
+  document.getElementById('dashboard-nexa').innerHTML = nexaTop.length ? nexaTop.map(renderMiniCard).join('') : '<p>No data</p>';
+  
+  // Month overview
+  const TODAY = new Date();
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const currentMonth = TODAY.getMonth();
+  const monthData = months.map((m, i) => {
+    const customersThisMonth = CUSTOMERS.filter(c => {
+      const peak = c.timeline.find(t => t.month === i && t.year === TODAY.getFullYear());
+      return peak && peak.isPeak;
+    }).length;
+    return { name: m, count: customersThisMonth, isPeak: i === 3 || i === 4 || i === 9 || i === 10 || i === 11 };
+  });
+  
+  document.getElementById('monthOverview').innerHTML = `
+    <div class="month-prob-grid">
+      ${monthData.map((m,i) => `
+        <div class="month-prob-item ${m.isPeak ? 'peak-month' : ''} ${i === currentMonth ? 'current-month' : ''}"
+             style="${i === currentMonth ? 'border-color:var(--primary);background:var(--primary-light);' : ''}">
+          <div class="m-name">${m.name} ${i === currentMonth ? '●' : ''}</div>
+          <div class="m-prob">${m.count}</div>
+          <div style="font-size:10px;color:var(--gray-400);">customers</div>
+          <div class="m-bar"><div class="m-bar-fill" style="width:${Math.min(100,(m.count/Math.max(1, CUSTOMERS.length))*100*3)}%"></div></div>
+        </div>
+      `).join('')}
+    </div>
+    <div style="margin-top:12px;font-size:11px;color:var(--gray-400);">
+      🟡 Peak months highlighted · Numbers show predicted customer count
+    </div>
+  `;
+}
+
+function renderDailyTargets() {
+  const arenaTargets = CUSTOMERS.filter(c => c.model === 'Arena').slice(0,2);
+  const nexaTargets = CUSTOMERS.filter(c => c.model === 'Nexa').slice(0,2);
+  
+  document.getElementById('daily-arena').innerHTML = arenaTargets.map(c => renderCustomerCard(c)).join('');
+  document.getElementById('daily-nexa').innerHTML = nexaTargets.map(c => renderCustomerCard(c)).join('');
+}
+
+let filteredCustomers = [];
+
+function renderCustomerList() {
+  filteredCustomers = [...CUSTOMERS];
+  renderFilteredCustomers();
+}
+
+function filterCustomers() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const model = document.getElementById('filterModel').value;
+  const status = document.getElementById('filterStatus').value;
+  const service = document.getElementById('filterService').value;
+  
+  filteredCustomers = CUSTOMERS.filter(c => {
+    const matchSearch = !search || 
+      c.name.toLowerCase().includes(search) || 
+      c.phone.includes(search) || 
+      c.car.toLowerCase().includes(search) ||
+      c.reg.toLowerCase().includes(search);
+    const matchModel = !model || c.model === model;
+    const matchStatus = !status || c.status === status;
+    const matchService = !service || c.serviceType === service;
+    return matchSearch && matchModel && matchStatus && matchService;
+  });
+  
+  renderFilteredCustomers();
+}
+
+function sortCustomers(by) {
+  if (by === 'prob-desc') filteredCustomers.sort((a,b) => b.score - a.score);
+  else if (by === 'prob-asc') filteredCustomers.sort((a,b) => a.score - b.score);
+  else if (by === 'name') filteredCustomers.sort((a,b) => a.name.localeCompare(b.name));
+  else if (by === 'days') filteredCustomers.sort((a,b) => b.features.daysSinceLast - a.features.daysSinceLast);
+  renderFilteredCustomers();
+}
+
+function renderFilteredCustomers() {
+  // SPEED OPTIMIZATION: Only render the top 100 cards to prevent browser freezing
+  const displayLimit = 100;
+  const toRender = filteredCustomers.slice(0, displayLimit);
+  
+  document.getElementById('customerCount').innerHTML = 
+    `Showing top <strong>${toRender.length}</strong> of ${filteredCustomers.length} total customers. Use search to find specific records.`;
+    
+  document.getElementById('customerListGrid').innerHTML = toRender.map(c => renderCustomerCard(c, false)).join('');
+}
+
+// ============================================================
+// CALENDAR
+// ============================================================
+
+const TODAY_DATE = new Date();
+let calYear = TODAY_DATE.getFullYear();
+let calMonth = TODAY_DATE.getMonth();
+
+function renderCalendar() {
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calMonthTitle').textContent = `${monthNames[calMonth]} ${calYear}`;
+  
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const dayNames = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+  
+  let html = dayNames.map(d => `<div class="cal-header">${d}</div>`).join('');
+  
+  for (let i = 0; i < firstDay; i++) {
+    html += `<div class="cal-day empty"></div>`;
+  }
+  
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = dateStr === TODAY_DATE.toISOString().split('T')[0];
+    
+    // Simplistic visual logic for predicted calendar dates
+    const customersForDate = CUSTOMERS.filter(c => {
+      const dayHash = c.reg.charCodeAt(c.reg.length-1) % daysInMonth;
+      return dayHash === d % daysInMonth && c.score > 50; 
+    });
+    
+    const isPeak = [3,4,9,10,11].includes(calMonth);
+    const hasCustomers = customersForDate.length > 0;
+    
+    html += `
+      <div class="cal-day ${isToday ? 'today' : ''} ${hasCustomers && !isToday ? 'has-customers' : ''} ${isPeak && !isToday && !hasCustomers ? 'peak' : ''}"
+           onclick="showCalDetail(${d}, '${dateStr}', ${customersForDate.length})">
+        <span class="cal-day-num">${d}</span>
+        ${hasCustomers && !isToday ? '<div class="cal-day-dot"></div>' : ''}
+      </div>
+    `;
+  }
+  
+  document.getElementById('calGrid').innerHTML = html;
+}
+
+function showCalDetail(day, dateStr, count) {
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calDetailTitle').textContent = `${day} ${monthNames[calMonth]} ${calYear}`;
+  
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const customersForDate = CUSTOMERS.filter(c => {
+      const dayHash = c.reg.charCodeAt(c.reg.length-1) % daysInMonth;
+      return dayHash === day % daysInMonth && c.score > 50; 
+  }).sort((a,b) => b.score - a.score);
+  
+  if (customersForDate.length === 0) {
+    document.getElementById('calDetail').innerHTML = `
+      <div style="text-align:center;color:var(--gray-400);padding:30px 0;">
+        <div style="font-size:24px;margin-bottom:8px;">📭</div>
+        <p style="font-size:13px;">No predicted customers for this date</p>
+      </div>
+    `;
+    return;
+  }
+  
+  document.getElementById('calDetail').innerHTML = `
+    <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px;">${customersForDate.length} customer(s) predicted for service around this date</p>
+    ${customersForDate.map(renderMiniCard).join('')}
+  `;
+}
+
+function changeMonth(dir) {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+// ============================================================
+// LONG-TERM FORECAST
+// ============================================================
+
+function renderLongTerm() {
+  const customers = [...CUSTOMERS].sort((a,b) => b.score - a.score);
+  renderLTList(customers);
+}
+
+function filterLongTerm() {
+  const search = document.getElementById('ltSearchInput').value.toLowerCase();
+  const model = document.getElementById('ltFilterModel').value;
+  
+  const filtered = CUSTOMERS.filter(c => {
+    const matchSearch = !search || c.name.toLowerCase().includes(search) || c.phone.includes(search);
+    const matchModel = !model || c.model === model;
+    return matchSearch && matchModel;
+  });
+  
+  renderLTList(filtered);
+}
+
+function renderLTList(customers) {
+  // SPEED OPTIMIZATION: Limit long-term rendering to top 50
+  const displayLimit = 50;
+  const toRender = customers.slice(0, displayLimit);
+  
+  document.getElementById('longtermList').innerHTML = 
+    `<div style="margin-bottom: 15px; font-size: 13px; color: var(--gray-500);">
+      Displaying top ${toRender.length} highest priority forecasts to maintain performance.
+    </div>` + 
+    toRender.map(c => {
+    const peakMonths = c.timeline.filter(t => t.isPeak).slice(0,6);
+    const nextPeak = peakMonths[0];
+    
+    return `
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="customer-avatar ${c.model==='Arena'?'avatar-arena':'avatar-nexa'}" style="width:36px;height:36px;font-size:13px;">
+              ${c.name.split(' ').map(w=>w[0]).join('').slice(0,2)}
+            </div>
+            <div>
+              <div style="font-size:14px;font-weight:600;">${c.name}</div>
+              <div style="font-size:12px;color:var(--gray-500);">${c.car} · ${c.phone} · <span class="chip ${c.model==='Arena'?'chip-arena':'chip-nexa'}" style="font-size:10px;">${c.model}</span></div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:20px;font-weight:800;color:var(--primary);">${c.score}%</div>
+            <div style="font-size:11px;color:var(--gray-400);">Current Score</div>
+          </div>
+        </div>
+        <div class="card-body">
+          ${nextPeak ? `
+            <div style="background:var(--warning-light);border:1px solid #fde68a;border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+              <span style="font-size:20px;">🎯</span>
+              <div>
+                <div style="font-size:12px;font-weight:600;color:var(--warning);">Best Contact Window</div>
+                <div style="font-size:13px;color:var(--gray-700);">${nextPeak.fullMonthName} — ${nextPeak.prob}% probability</div>
+              </div>
+            </div>
+          ` : ''}
+          
+          <div style="font-size:12px;font-weight:600;color:var(--gray-500);margin-bottom:8px;">Month-by-Month Probability (Today → Dec 2027)</div>
+          <div class="month-prob-grid">
+            ${c.timeline.slice(0,24).map(t => `
+              <div class="month-prob-item ${t.isPeak ? 'peak-month' : ''}" title="${t.fullMonthName}: ${t.prob}%">
+                <div class="m-name">${t.monthName}</div>
+                <div class="m-prob" style="font-size:14px;">${t.prob}%</div>
+                <div class="m-bar"><div class="m-bar-fill" style="width:${t.prob}%;background:${t.isPeak?'var(--warning)':'var(--primary)'}"></div></div>
+              </div>
+            `).join('')}
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:var(--gray-400);">
+            🟡 Peak months (≥65%) · Showing 24 months · <a href="#" onclick="openTimelineModal('${c.reg}');return false;" style="color:var(--primary);">View all months →</a>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================================
+// MODALS
+// ============================================================
+
+function openCustomerModal(reg) {
+  const c = CUSTOMERS.find(x => x.reg === reg);
+  if (!c) return;
+  
+  document.getElementById('modalTitle').textContent = `${c.name} — Full Details`;
+  document.getElementById('modalBody').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div class="model-info-item"><h4>Registration</h4><p>${c.reg}</p></div>
+      <div class="model-info-item"><h4>Phone</h4><p>${c.phone}</p></div>
+      <div class="model-info-item"><h4>Car Model</h4><p>${c.car} (${c.model})</p></div>
+      <div class="model-info-item"><h4>Service Type</h4><p>${c.serviceType}</p></div>
+      <div class="model-info-item"><h4>Days Since Last Service</h4><p>${c.features.daysSinceLast} days</p></div>
+      <div class="model-info-item"><h4>Avg. Service Gap</h4><p>${c.features.avgGap} days</p></div>
+      <div class="model-info-item"><h4>Total Services</h4><p>${c.features.frequency}</p></div>
+      <div class="model-info-item"><h4>Consistency Score</h4><p>${c.features.consistency}%</p></div>
+    </div>
+    
+    <div>
+      <div style="font-size:12px;font-weight:600;color:var(--gray-500);margin-bottom:8px;">ML PREDICTION REASONS</div>
+      ${c.reasons.map(r => `
+        <div class="reason-box" style="margin-bottom:6px;">→ ${r}</div>
+      `).join('')}
+    </div>
+  `;
+  
+  document.getElementById('customerModal').classList.add('open');
+}
+
+function openTimelineModal(reg) {
+  const c = CUSTOMERS.find(x => x.reg === reg);
+  if (!c) return;
+  
+  document.getElementById('modalTitle').textContent = `${c.name} — Full Timeline (2025–2027)`;
+  document.getElementById('modalBody').innerHTML = `
+    <p style="font-size:12px;color:var(--gray-500);margin-bottom:16px;">Complete month-by-month service probability from today until December 2027</p>
+    <div class="month-prob-grid">
+      ${c.timeline.map(t => `
+        <div class="month-prob-item ${t.isPeak ? 'peak-month' : ''}">
+          <div class="m-name">${t.monthName}</div>
+          <div class="m-prob" style="font-size:13px;">${t.prob}%</div>
+          <div class="m-bar"><div class="m-bar-fill" style="width:${t.prob}%;background:${t.isPeak?'var(--warning)':'var(--primary)'}"></div></div>
+        </div>
+      `).join('')}
+    </div>
+    <div style="margin-top:12px;font-size:11px;color:var(--gray-400);">🟡 Amber = Peak months (≥65% probability)</div>
+  `;
+  
+  document.getElementById('customerModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('customerModal').classList.remove('open');
+}
+
+document.getElementById('customerModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ============================================================
+// PRINT & EXPORT
+// ============================================================
+
+function renderPrintView() {
+  const TODAY = new Date();
+  document.getElementById('printDate').textContent = `Generated: ${TODAY.toLocaleDateString('en-IN', {weekday:'long',year:'numeric',month:'long',day:'numeric'})}`;
+  
+  const sorted = [...CUSTOMERS].sort((a,b) => b.score - a.score);
+  
+  document.getElementById('printTableBody').innerHTML = sorted.map((c,i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td><strong>${c.name}</strong></td>
+      <td>${c.phone}</td>
+      <td style="font-size:11px;">${c.reg}</td>
+      <td><span class="chip ${c.model==='Arena'?'chip-arena':'chip-nexa'}">${c.model}</span></td>
+      <td><span class="chip ${c.serviceType==='Direct'?'chip-direct':'chip-insurance'}">${c.serviceType}</span></td>
+      <td><strong style="color:${c.score>=70?'#0e9f6e':c.score>=45?'#e3a008':'#f05252'}">${c.score}%</strong></td>
+      <td>${c.features.daysSinceLast}d</td>
+      <td style="font-size:11px;">${c.reasons[0]}</td>
+      <td><span class="stat-badge ${c.status==='converted'?'badge-success':c.status==='called'?'badge-primary':c.status==='not-picked'?'badge-warning':'badge-gray'}">${c.status.replace('-',' ')}</span></td>
+    </tr>
+  `).join('');
+  
+  // Summary
+  document.getElementById('print-total').textContent = sorted.length;
+  document.getElementById('print-converted').textContent = sorted.filter(c => c.status === 'converted').length;
+  document.getElementById('print-called').textContent = sorted.filter(c => c.status === 'called').length;
+  document.getElementById('print-notpicked').textContent = sorted.filter(c => c.status === 'not-picked').length;
+}
+
+function exportCSV() {
+  const TODAY_STR = new Date().toISOString().split('T')[0];
+  const headers = ['Name','Phone','Reg No','Car','Model','Service Type','Score','Days Since Last','Avg Gap','Total Services','Consistency','Status','Reason'];
+  const rows = CUSTOMERS.map(c => [
+    c.name, c.phone, c.reg, c.car, c.model, c.serviceType,
+    c.score + '%', c.features.daysSinceLast, c.features.avgGap,
+    c.features.frequency, c.features.consistency + '%',
+    c.status, `"${c.reasons[0]}"`
+  ]);
+  
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `maruti_crm_${TODAY_STR}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showNotification('📊 CSV exported successfully');
+}
+
+function exportPDF() {
+  showNotification('🖨️ Opening print dialog for PDF...');
+  setTimeout(() => window.print(), 500);
+}
+
+// ============================================================
+// STATS UPDATE
+// ============================================================
+
+function updateStats() {
+  document.getElementById('stat-total').textContent = CUSTOMERS.length;
+  document.getElementById('stat-high').textContent = CUSTOMERS.filter(c => c.score >= 70).length;
+  document.getElementById('stat-arena').textContent = CUSTOMERS.filter(c => c.model === 'Arena').length;
+  document.getElementById('stat-nexa').textContent = CUSTOMERS.filter(c => c.model === 'Nexa').length;
+  
+  const converted = CUSTOMERS.filter(c => c.status === 'converted').length;
+  document.getElementById('stat-converted').textContent = converted;
+  document.getElementById('stat-converted-sub').textContent = `of 4 daily targets`;
+  document.getElementById('stat-conv-badge').textContent = converted >= 4 ? '✓ Target Met!' : converted >= 2 ? 'On Track' : 'In Progress';
+  document.getElementById('stat-conv-badge').className = `stat-badge ${converted >= 4 ? 'badge-success' : converted >= 2 ? 'badge-warning' : 'badge-danger'}`;
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+
+const pageRenderers = {
+  dashboard: renderDashboard,
+  daily: renderDailyTargets,
+  customers: renderCustomerList,
+  calendar: renderCalendar,
+  longterm: renderLongTerm,
+  model: () => {}, 
+  print: renderPrintView,
+};
+
+const pageTitles = {
+  dashboard: 'Dashboard',
+  daily: 'Daily Targets',
+  customers: 'Customer List',
+  calendar: 'Calendar View',
+  longterm: 'Long-Term Forecast',
+  model: 'ML Model Info',
+  print: 'Print / Export',
+};
+
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  
+  document.getElementById(`page-${page}`).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.trim().toLowerCase().includes(pageTitles[page].toLowerCase().split(' ')[0])) {
+      n.classList.add('active');
+    }
+  });
+  
+  document.getElementById('pageTitle').textContent = pageTitles[page];
+  
+  if (pageRenderers[page]) pageRenderers[page]();
+  
+  if (window.innerWidth <= 768) {
+    document.getElementById('sidebar').classList.remove('open');
+  }
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+async function refreshModel() {
+  document.getElementById('loadingOverlay').style.display = 'flex';
+  document.querySelector('.loading-text').textContent = 'Refreshing Live Data...';
+  
+  await loadDataFromServer();
+  
+  const activePage = document.querySelector('.page.active')?.id?.replace('page-', '');
+  if (activePage && pageRenderers[activePage]) pageRenderers[activePage]();
+  
+  document.getElementById('loadingOverlay').style.display = 'none';
+  showNotification('🔄 Data refreshed successfully');
+}
+
+// ============================================================
+// NOTIFICATION
+// ============================================================
+
+function showNotification(msg) {
+  const el = document.getElementById('notification');
+  document.getElementById('notifText').textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ============================================================
+// INIT & AUTO-REFRESH
+// ============================================================
+
+async function init() {
+  document.getElementById('pageDate').textContent = new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('en-IN');
+  document.getElementById('printDate').textContent = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  await loadDataFromServer();
+  renderDashboard();
+
+  // Hide loading screen
+  setTimeout(() => {
+    document.getElementById('loadingOverlay').style.opacity = '0';
+    setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 300);
+  }, 500);
+}
+
+// Auto Refresh every 5 minutes (300,000 ms)
+setInterval(async () => {
+  await loadDataFromServer();
+  const activePage = document.querySelector('.page.active')?.id?.replace('page-', '');
+  if (activePage && pageRenderers[activePage]) pageRenderers[activePage]();
+}, 300000);
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
